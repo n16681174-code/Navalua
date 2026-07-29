@@ -94,6 +94,7 @@ RageSection:Toggle({
     end
 })
 
+-- รวมระบบ Void Spamming เข้าไปโดยตรง
 RageSection:Toggle({
     Name = "Spamming Void",
     Flag = "SpamVoid",
@@ -104,6 +105,7 @@ RageSection:Toggle({
             task.spawn(function()
                 while Library.Flags.SpamVoid do
                     pcall(function()
+                        -- รันสคริปต์ Void Spamming โดยตรง
                         loadstring(game:HttpGet("https://raw.githubusercontent.com/n16681174-code/Void-spamming/refs/heads/main/asas"))()
                     end)
                     task.wait(0.1)
@@ -147,8 +149,7 @@ EspSection:Toggle({
 })
 
 EspSection:Label("ESP Color"):Colorpicker({
-    Name = "ESP Color",
-    Flag = "EspColorPicker",
+    Name = "EspColorPicker",
     Default = Color3.fromRGB(255, 0, 0),
     Callback = function(Value)
         EspColor = Value
@@ -184,6 +185,19 @@ local HitSoundIDs = {
     ["COD"] = "rbxassetid://9060603772"
 }
 
+-- ฟังก์ชันช่วยเล่นเสียง
+local function PlaySelectedSound(soundName)
+    local soundId = HitSoundIDs[soundName]
+    if soundId then
+        local sound = Instance.new("Sound")
+        sound.SoundId = soundId
+        sound.Volume = 2
+        sound.Parent = game:GetService("SoundService")
+        sound:Play()
+        sound.Ended:Connect(function() sound:Destroy() end)
+    end
+end
+
 SoundSection:Dropdown({
     Name = "Hit Sound",
     Flag = "HitSoundSelect",
@@ -191,22 +205,17 @@ SoundSection:Dropdown({
     Items = {"BowHit", "Rust", "TF2", "Neverlose", "Skeet", "COD"},
     Multi = false,
     Callback = function(Value)
-        print("Selected Hit Sound:", Value)
+        local soundName = type(Value) == "table" and Value[1] or Value
+        print("Selected Hit Sound:", soundName)
     end
 })
 
 SoundSection:Button({
     Name = "Test Hit Sound",
     Callback = function()
-        local selectedSound = Library.Flags.HitSoundSelect and Library.Flags.HitSoundSelect[1] or "BowHit"
-        local soundId = HitSoundIDs[selectedSound] or "rbxassetid://1053296915"
-
-        local sound = Instance.new("Sound")
-        sound.SoundId = soundId
-        sound.Volume = 2
-        sound.Parent = game:GetService("SoundService")
-        sound:Play()
-        sound.Ended:Connect(function() sound:Destroy() end)
+        local rawValue = Library.Flags.HitSoundSelect
+        local soundName = type(rawValue) == "table" and rawValue[1] or rawValue or "BowHit"
+        PlaySelectedSound(soundName)
     end
 })
 
