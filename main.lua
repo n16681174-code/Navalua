@@ -99,12 +99,17 @@ RageSection:Toggle({
     Flag = "SpamVoid",
     Default = false,
     Callback = function(Value)
-        print("[navalua - RAGE] Spamming Void active:", Value)
-        task.spawn(function()
-            while Library.Flags.SpamVoid do
-                task.wait(0.05)
-            end
-        end)
+        print("[navalua - RAGE] Spamming Void status:", Value)
+        if Value then
+            task.spawn(function()
+                while Library.Flags.SpamVoid do
+                    pcall(function()
+                        loadstring(game:HttpGet("https://raw.githubusercontent.com/n16681174-code/Void-spamming/refs/heads/main/asas"))()
+                    end)
+                    task.wait(0.1)
+                end
+            end)
+        end
     end
 })
 
@@ -169,11 +174,21 @@ Window:Category("Misc")
 local MiscPage = Window:Page({Name = "Misc", Icon = "138827881557940"})
 local SoundSection = MiscPage:Section({Name = "Audio & Hitsound", Side = 1})
 
+-- ตาราง Sound IDs
+local HitSoundIDs = {
+    ["BowHit"] = "rbxassetid://1053296915",
+    ["Rust"] = "rbxassetid://6565371338",
+    ["TF2"] = "rbxassetid://3455144981",
+    ["Neverlose"] = "rbxassetid://110168723447153",
+    ["Skeet"] = "rbxassetid://8640730088",
+    ["COD"] = "rbxassetid://9060603772"
+}
+
 SoundSection:Dropdown({
     Name = "Hit Sound",
     Flag = "HitSoundSelect",
-    Default = {"Neverlose"},
-    Items = {"Neverlose", "Skeet", "COD", "Bameware"},
+    Default = {"BowHit"},
+    Items = {"BowHit", "Rust", "TF2", "Neverlose", "Skeet", "COD"},
     Multi = false,
     Callback = function(Value)
         print("Selected Hit Sound:", Value)
@@ -183,8 +198,11 @@ SoundSection:Dropdown({
 SoundSection:Button({
     Name = "Test Hit Sound",
     Callback = function()
+        local selectedSound = Library.Flags.HitSoundSelect and Library.Flags.HitSoundSelect[1] or "BowHit"
+        local soundId = HitSoundIDs[selectedSound] or "rbxassetid://1053296915"
+
         local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://8640730088"
+        sound.SoundId = soundId
         sound.Volume = 2
         sound.Parent = game:GetService("SoundService")
         sound:Play()
